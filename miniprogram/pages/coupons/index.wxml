@@ -1,0 +1,38 @@
+<view class="page">
+  <view class="coupon-list" wx:if="{{coupons.length > 0}}">
+    <view class="coupon-card {{item.disabled ? 'disabled' : ''}}" wx:for="{{coupons}}" wx:key="_id">
+      <view class="coupon-main" bindtap="onToggleExpand" data-index="{{index}}">
+        <view class="coupon-left">
+          <view class="coupon-amount">
+            <text class="amount-num">{{item.amount}}</text>
+            <text class="amount-unit">元</text>
+          </view>
+          <text class="coupon-period">{{item.startDate ? item.startDate : ''}}~{{item.endDate ? item.endDate : ''}}</text>
+        </view>
+        <view class="coupon-right">
+          <view class="coupon-use-btn {{item.disabled ? 'btn-disabled' : ''}}" catchtap="onUseCoupon" data-index="{{index}}">
+            <text>去使用</text>
+          </view>
+          <text class="coupon-disabled-tip" wx:if="{{item.disabled}}">{{item.disabledTip}}</text>
+          <view class="expand-arrow {{item.expanded ? 'expanded' : ''}}">
+            <text>></text>
+          </view>
+        </view>
+      </view>
+      <view class="coupon-detail" wx:if="{{item.expanded}}">
+                <view class="detail-rule">
+                  <text class="detail-label">适用范围：</text>
+                  <text class="detail-text">{{item.scopeText}}</text>
+                </view>
+              </view>
+    </view>
+  </view>
+
+  <view class="empty-state" wx:elif="{{!loading}}">
+    <text class="empty-text">暂无优惠券</text>
+  </view>
+
+  <view class="loading-state" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>

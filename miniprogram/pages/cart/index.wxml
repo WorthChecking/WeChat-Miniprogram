@@ -1,0 +1,87 @@
+<view class="page">
+  <view class="cart-list" wx:if="{{cart.length > 0}}">
+    <view class="cart-item" wx:for="{{cart}}" wx:key="id">
+      <view class="item-img">
+        <image src="{{item.image}}" mode="aspectFill" wx:if="{{item.image}}"></image>
+        <view class="img-placeholder" wx:else>
+          <text>{{item.name}}</text>
+        </view>
+      </view>
+      <view class="item-info">
+        <text class="item-name">{{item.name}}</text>
+        <text class="item-specs">{{item.specs}}</text>
+        <view class="item-bottom">
+          <text class="item-price">¥{{item.price}}</text>
+          <view class="quantity-control">
+            <view class="quantity-btn" bindtap="onQuantityChange" data-index="{{index}}" data-type="minus">
+              <text>-</text>
+            </view>
+            <view class="quantity-num">
+              <text>{{item.quantity}}</text>
+            </view>
+            <view class="quantity-btn active" bindtap="onQuantityChange" data-index="{{index}}" data-type="plus">
+              <text>+</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty-state" wx:else>
+    <text class="empty-text">购物车为空</text>
+  </view>
+
+  <view class="order-info">
+    <view class="info-item">
+      <text class="info-label">用餐方式</text>
+      <view class="info-options">
+        <view class="option-btn {{orderType === 'dine-in' ? 'active' : ''}}" bindtap="onOrderTypeChange" data-type="dine-in">
+          <text>堂食</text>
+        </view>
+        <view class="option-btn {{orderType === 'pickup' ? 'active' : ''}}" bindtap="onOrderTypeChange" data-type="pickup">
+          <text>自提</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="info-item" wx:if="{{orderType === 'dine-in'}}">
+      <text class="info-label">桌号</text>
+      <text class="info-value primary-color">{{tableNo || '未选择'}}</text>
+    </view>
+
+    <view class="info-item coupon-item" bindtap="onSelectCoupon">
+      <text class="info-label">优惠券</text>
+      <view class="coupon-value">
+        <text class="coupon-name" wx:if="{{selectedCoupon}}">{{selectedCoupon.amount}}元券</text>
+        <text class="coupon-placeholder" wx:else>未选择</text>
+        <text class="coupon-arrow">></text>
+      </view>
+    </view>
+
+    <view class="info-item">
+      <text class="info-label">备注</text>
+      <input class="remark-input" placeholder="输入口味、偏好" value="{{remark}}" bindinput="onRemarkInput" />
+    </view>
+  </view>
+
+  <view class="submit-bar">
+    <view class="price-info">
+      <view class="price-row">
+        <text class="price-label">商品金额</text>
+        <text class="price-value">¥{{totalPrice}}</text>
+      </view>
+      <view class="price-row" wx:if="{{selectedCoupon}}">
+        <text class="price-label">优惠券</text>
+        <text class="price-value discount">-¥{{couponDiscount}}</text>
+      </view>
+      <view class="price-row total-row" wx:if="{{selectedCoupon}}">
+        <text class="price-label total-label">实付金额</text>
+        <text class="price-value total-value">¥{{finalPrice}}</text>
+      </view>
+    </view>
+    <view class="submit-btn {{storeOpen ? '' : 'disabled'}}" bindtap="{{storeOpen ? 'onSubmitOrder' : ''}}">
+      <text>{{storeOpen ? '提交订单' : '未在营业时段中'}}</text>
+    </view>
+  </view>
+</view>

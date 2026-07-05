@@ -1,0 +1,9 @@
+{
+  "name": "loginAdmin",
+  "version": "1.0.0",
+  "description": "商家后台微信扫码登录",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

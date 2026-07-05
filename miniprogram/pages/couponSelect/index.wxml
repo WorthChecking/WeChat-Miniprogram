@@ -1,0 +1,44 @@
+<view class="page">
+  <view class="coupon-list" wx:if="{{coupons.length > 0}}">
+    <view class="coupon-card {{item.canUse ? '' : 'disabled'}} {{selectedId === item._id ? 'selected' : ''}}" 
+          wx:for="{{coupons}}" wx:key="_id" 
+          bindtap="onSelectCoupon" data-id="{{item._id}}">
+      <view class="coupon-left">
+        <view class="coupon-amount">
+          <text class="amount-num">{{item.amount}}</text>
+          <text class="amount-unit">元</text>
+        </view>
+        <text class="coupon-period">{{item.startDate}}~{{item.endDate}}</text>
+      </view>
+      <view class="coupon-right">
+        <text class="coupon-rule">{{item.scopeText}}</text>
+        <view class="coupon-status">
+          <text class="status-text" wx:if="{{!item.canUse}}">
+            {{!item.inPeriod ? '不在使用时段内' : '当前购物车无可用商品'}}
+          </text>
+          <text class="status-text usable" wx:else>可使用</text>
+        </view>
+      </view>
+      <view class="check-mark" wx:if="{{selectedId === item._id}}">
+        <text>✓</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty-state" wx:elif="{{!loading}}">
+    <text class="empty-text">暂无可用优惠券</text>
+  </view>
+
+  <view class="loading-state" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <view class="bottom-bar">
+    <view class="clear-btn" bindtap="onClearCoupon">
+      <text>不使用优惠券</text>
+    </view>
+    <view class="confirm-btn" bindtap="onConfirm">
+      <text>完成</text>
+    </view>
+  </view>
+</view>

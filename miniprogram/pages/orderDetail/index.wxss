@@ -1,0 +1,174 @@
+.page {
+  min-height: 100vh;
+  background-color: #F5F3EE;
+  padding: 20rpx 30rpx;
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+}
+
+.section {
+  background-color: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 20rpx;
+}
+
+.divider {
+  height: 1rpx;
+  background-color: #EEEEEE;
+  margin: 20rpx 0;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.info-row:last-child {
+  margin-bottom: 0;
+}
+
+.info-label {
+  font-size: 26rpx;
+  color: #666666;
+}
+
+.info-value {
+  font-size: 26rpx;
+  color: #333333;
+}
+
+.remark-text {
+  max-width: 400rpx;
+  word-break: break-all;
+}
+
+.status-tag {
+  padding: 8rpx 20rpx;
+  background-color: #F0EDE5;
+  border-radius: 20rpx;
+}
+
+.status-tag text {
+  font-size: 24rpx;
+  color: #2D5678;
+}
+
+.status-tag.success {
+  background-color: #F6FFED;
+}
+
+.status-tag.success text {
+  color: #52C41A;
+}
+
+.status-tag.warning {
+  background-color: #FFFBE6;
+}
+
+.status-tag.warning text {
+  color: #FAAD14;
+}
+
+.goods-item {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20rpx;
+}
+
+.goods-item:last-child {
+  margin-bottom: 0;
+}
+
+.goods-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.goods-name {
+  font-size: 26rpx;
+  color: #333333;
+}
+
+.goods-price {
+  font-size: 26rpx;
+  color: #333333;
+}
+
+.goods-specs {
+  font-size: 22rpx;
+  color: #2D5678;
+  background: rgba(45, 86, 120, 0.1);
+  padding: 4rpx 12rpx;
+  border-radius: 6rpx;
+  margin-top: 8rpx;
+  display: inline-block;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.total-label {
+  font-size: 28rpx;
+  color: #333333;
+}
+
+.total-price {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #2D5678;
+}
+
+.pickup-section {
+  text-align: center;
+}
+
+.pickup-tip {
+  font-size: 24rpx;
+  color: #666666;
+  margin-bottom: 20rpx;
+  display: block;
+}
+
+.pickup-code {
+  display: inline-block;
+  padding: 20rpx 60rpx;
+  background-color: #F0EDE5;
+  border-radius: 16rpx;
+}
+
+.pickup-code text {
+  font-size: 56rpx;
+  font-weight: 600;
+  color: #2D5678;
+}
+
+.confirm-btn {
+  position: fixed;
+  bottom: 40rpx;
+  left: 30rpx;
+  right: 30rpx;
+  background-color: #2D5678;
+  border-radius: 50rpx;
+  padding: 24rpx;
+  text-align: center;
+}
+
+.confirm-btn text {
+  font-size: 32rpx;
+  color: #FFFFFF;
+  font-weight: 500;
+}

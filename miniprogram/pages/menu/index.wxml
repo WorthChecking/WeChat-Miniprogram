@@ -1,0 +1,264 @@
+<view class="page">
+  <view class="search-bar" bindtap="onSearchTap">
+    <view class="search-input">
+      <image class="search-icon-img" src="/images/icons/search.png" mode="aspectFit" />
+      <text class="search-placeholder">搜索商品</text>
+    </view>
+  </view>
+
+  <view class="main-body">
+    <scroll-view scroll-y class="category-sidebar" enhanced="{{true}}" bounces="{{true}}">
+      <view class="cate-item {{currentCategory === index ? 'active' : ''}}" 
+            wx:for="{{categories}}" 
+            wx:key="_id" 
+            bindtap="onCategoryTap" 
+            data-index="{{index}}">
+        <text>{{item.name}}</text>
+      </view>
+    </scroll-view>
+
+    <scroll-view scroll-y class="goods-scroll" enhanced="{{true}}" bounces="{{true}}" scroll-with-animation scroll-top="{{scrollTop}}" bindscroll="onGoodsScroll">
+      <view class="cate-section" wx:for="{{groupedGoods}}" wx:key="_id" id="section-{{index}}">
+        <view class="section-header">
+          <text class="section-name">{{item.categoryName}}</text>
+        </view>
+
+        <view class="goods-item" wx:for="{{item.goods}}" wx:key="_id" wx:for-item="gitem">
+          <view class="goods-img">
+            <image src="{{gitem.image}}" mode="aspectFill" lazy-load wx:if="{{gitem.image}}"></image>
+            <view class="img-placeholder" wx:else>
+              <text>{{gitem.name}}</text>
+            </view>
+            <view class="goods-tag hot" wx:if="{{gitem.isHot}}">热销</view>
+            <view class="goods-tag new" wx:elif="{{gitem.isNew}}">新品</view>
+            <view class="goods-tag recommend" wx:elif="{{gitem.isRecommend}}">推荐</view>
+          </view>
+          <view class="goods-info">
+            <text class="goods-name">{{gitem.name}}</text>
+            <text class="goods-desc">{{gitem.description}}</text>
+            <text class="goods-sales">月售 {{gitem.sales || 0}}份</text>
+            <view class="goods-bottom">
+              <view class="price-wrap">
+                <text class="goods-price">¥{{gitem.price}}</text>
+                <text class="original-price" wx:if="{{gitem.originalPrice}}">¥{{gitem.originalPrice}}</text>
+              </view>
+              <view class="cart-control" wx:if="{{!gitem.needSpec}}">
+                <view class="minus-btn" wx:if="{{goodsInCart[gitem._id] > 0}}" catchtap="onMinusFromCart" data-id="{{gitem._id}}">
+                  <text>-</text>
+                </view>
+                <view class="cart-num" wx:if="{{goodsInCart[gitem._id] > 0}}">
+                  <text>{{goodsInCart[gitem._id]}}</text>
+                </view>
+                <view class="add-btn" catchtap="onAddToCart" data-id="{{gitem._id}}">
+                  <text>+</text>
+                </view>
+              </view>
+              <view class="spec-btn" wx:else catchtap="onOpenSpecPopup" data-item="{{gitem}}">
+                <text>选规格</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="empty-state" wx:if="{{!loading && groupedGoods.length === 0}}">
+        <text class="empty-text">暂无商品</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="cart-bar" wx:if="{{cartCount > 0}}">
+    <view class="cart-left" bindtap="onGoToCart">
+      <view class="cart-icon">
+        <image class="cart-icon-img" src="/images/icons/cart.png" mode="aspectFit" />
+        <view class="cart-badge">
+          <text>{{cartCount}}</text>
+        </view>
+      </view>
+      <view class="cart-price">
+        <text class="price-text">¥{{cartTotal}}</text>
+      </view>
+    </view>
+    <view class="cart-btn" bindtap="onGoToCart">
+      <text>去结算</text>
+    </view>
+  </view>
+
+  <view class="loading-mask" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <view class="search-popup" wx:if="{{showSearch}}">
+    <view class="search-header">
+      <view class="search-input-wrap">
+        <image class="search-icon-img" src="/images/icons/search.png" mode="aspectFit" />
+        <input class="search-input-real" 
+               placeholder="搜索商品" 
+               value="{{searchKeyword}}" 
+               bindinput="onSearchInput" 
+               focus="{{showSearch}}" />
+      </view>
+      <view class="search-cancel" bindtap="onCloseSearch">
+        <text>取消</text>
+      </view>
+    </view>
+    
+    <scroll-view scroll-y class="search-results" wx:if="{{searchResults.length > 0}}">
+      <view class="goods-item" wx:for="{{searchResults}}" wx:key="_id">
+        <view class="goods-img">
+          <image src="{{item.image}}" mode="aspectFill" lazy-load wx:if="{{item.image}}"></image>
+          <view class="img-placeholder" wx:else>
+            <text>{{item.name}}</text>
+          </view>
+          <view class="goods-tag hot" wx:if="{{item.isHot}}">热销</view>
+          <view class="goods-tag new" wx:elif="{{item.isNew}}">新品</view>
+          <view class="goods-tag recommend" wx:elif="{{item.isRecommend}}">推荐</view>
+        </view>
+        <view class="goods-info">
+          <text class="goods-name">{{item.name}}</text>
+          <text class="goods-desc">{{item.description}}</text>
+          <text class="goods-sales">月售 {{item.sales || 0}}份</text>
+          <view class="goods-bottom">
+            <view class="price-wrap">
+              <text class="goods-price">¥{{item.price}}</text>
+              <text class="original-price" wx:if="{{item.originalPrice}}">¥{{item.originalPrice}}</text>
+            </view>
+            <view class="cart-control" wx:if="{{!item.needSpec}}">
+                <view class="minus-btn" wx:if="{{goodsInCart[item._id] > 0}}" catchtap="onMinusFromCart" data-id="{{item._id}}">
+                  <text>-</text>
+                </view>
+                <view class="cart-num" wx:if="{{goodsInCart[item._id] > 0}}">
+                  <text>{{goodsInCart[item._id]}}</text>
+                </view>
+                <view class="add-btn" catchtap="onAddToCart" data-id="{{item._id}}">
+                  <text>+</text>
+                </view>
+              </view>
+            <view class="spec-btn" wx:else catchtap="onOpenSpecPopup" data-item="{{item}}">
+              <text>选规格</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+    
+    <view class="search-empty" wx:if="{{searchKeyword.length > 0 && searchResults.length === 0}}">
+      <text>未找到相关商品</text>
+    </view>
+  </view>
+
+  <view class="spec-popup" wx:if="{{showSpecPopup}}">
+    <view class="popup-mask" bindtap="closeSpecPopup"></view>
+    <view class="popup-content">
+      <view class="popup-header">
+        <text class="popup-title">选择规格</text>
+      </view>
+      
+      <view class="popup-body">
+        <view class="goods-preview">
+          <view class="preview-img">
+            <image src="{{currentGoods.image}}" mode="aspectFill" wx:if="{{currentGoods.image}}"></image>
+            <view class="img-placeholder" wx:else>
+              <text>{{currentGoods.name}}</text>
+            </view>
+          </view>
+          <view class="preview-info">
+            <text class="preview-name">{{currentGoods.name}}</text>
+            <text class="preview-desc">{{currentGoods.description}}</text>
+            <text class="preview-price">¥{{currentGoods.price}}</text>
+          </view>
+        </view>
+
+        <view class="spec-section" wx:for="{{currentGoods.specGroups}}" wx:key="name" wx:for-item="specGroup" wx:for-index="specIdx">
+          <text class="spec-label">{{specGroup.name}}</text>
+          <view class="spec-options">
+            <view class="spec-option {{specForm.specs[specIdx] === option ? 'active' : ''}}" 
+                  wx:for="{{specGroup.options}}" 
+                  wx:key="*this" 
+                  wx:for-item="option"
+                  bindtap="onDynamicSpecSelect" 
+                  data-idx="{{specIdx}}" 
+                  data-value="{{option}}">
+              <text>{{option}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="popup-footer">
+        <view class="confirm-btn {{specAllSelected ? '' : 'disabled'}}" bindtap="onConfirmSpec">
+          <text>加入购物车</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="cart-popup" wx:if="{{showCartPopup}}">
+    <view class="popup-mask" bindtap="closeCartPopup"></view>
+    <view class="cart-popup-content">
+      <view class="cart-popup-header">
+        <text class="cart-popup-title">购物车</text>
+        <view class="cart-popup-close" bindtap="closeCartPopup">
+          <text>✕</text>
+        </view>
+      </view>
+      
+      <scroll-view scroll-y class="cart-popup-list" wx:if="{{cart.length > 0}}">
+        <view class="cart-popup-item" wx:for="{{cart}}" wx:key="id">
+          <view class="cart-popup-item-info">
+            <text class="cart-popup-item-name">{{item.name}}</text>
+            <text class="cart-popup-item-specs" wx:if="{{item.specs}}">{{item.specs}}</text>
+          </view>
+          <view class="cart-popup-item-right">
+            <text class="cart-popup-item-price">¥{{item.price}}</text>
+            <view class="cart-popup-quantity">
+              <view class="cart-popup-qty-btn" bindtap="onCartQuantityChange" data-index="{{index}}" data-type="minus">
+                <text>-</text>
+              </view>
+              <text class="cart-popup-qty-num">{{item.quantity}}</text>
+              <view class="cart-popup-qty-btn active" bindtap="onCartQuantityChange" data-index="{{index}}" data-type="plus">
+                <text>+</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+      
+      <view class="cart-popup-empty" wx:else>
+        <text>购物车为空</text>
+      </view>
+
+      <view class="cart-popup-order-info">
+        <view class="cart-popup-info-row">
+          <text class="cart-popup-info-label">用餐方式</text>
+          <view class="cart-popup-options">
+            <view class="cart-popup-option {{orderType === 'dine-in' ? 'active' : ''}}" bindtap="onOrderTypeChange" data-type="dine-in">
+              <text>堂食</text>
+            </view>
+            <view class="cart-popup-option {{orderType === 'pickup' ? 'active' : ''}}" bindtap="onOrderTypeChange" data-type="pickup">
+              <text>自提</text>
+            </view>
+          </view>
+        </view>
+        <view class="cart-popup-info-row" wx:if="{{orderType === 'dine-in'}}">
+          <text class="cart-popup-info-label">桌号</text>
+          <text class="cart-popup-info-value">{{tableNo || '未选择'}}</text>
+        </view>
+        <view class="cart-popup-info-row">
+          <text class="cart-popup-info-label">备注</text>
+          <input class="cart-popup-remark" placeholder="输入口味、偏好" value="{{remark}}" bindinput="onRemarkInput" />
+        </view>
+      </view>
+
+      <view class="cart-popup-footer">
+        <view class="cart-popup-total">
+          <text class="cart-popup-total-label">合计</text>
+          <text class="cart-popup-total-price">¥{{cartTotal}}</text>
+        </view>
+        <view class="cart-popup-submit {{storeOpen ? '' : 'disabled'}}" bindtap="{{storeOpen ? 'onSubmitOrder' : ''}}">
+          <text>{{storeOpen ? '提交订单' : '未营业'}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

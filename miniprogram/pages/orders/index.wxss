@@ -1,0 +1,152 @@
+.page {
+  min-height: 100vh;
+  background-color: #F5F3EE;
+}
+
+.tabs {
+  display: flex;
+  background-color: #FFFFFF;
+  padding: 20rpx 30rpx;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.tab-item {
+  padding: 16rpx 30rpx;
+  margin-right: 20rpx;
+  border-radius: 30rpx;
+  background-color: #F5F5F5;
+}
+
+.tab-item text {
+  font-size: 26rpx;
+  color: #666666;
+}
+
+.tab-item.active {
+  background-color: #2D5678;
+}
+
+.tab-item.active text {
+  color: #FFFFFF;
+}
+
+.order-list {
+  padding: 20rpx 30rpx;
+  height: calc(100vh - 120rpx);
+}
+
+.order-card {
+  background-color: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 20rpx 20rpx 20rpx 20rpx;
+  margin: 0 56rpx 20rpx 0;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.order-no {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.order-status {
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+}
+
+.order-status text {
+  font-size: 22rpx;
+  color: #2D5678;
+}
+
+.order-content {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-top: 1rpx solid #EEEEEE;
+  border-bottom: 1rpx solid #EEEEEE;
+}
+
+.order-img {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.order-img image {
+  width: 100%;
+  height: 100%;
+}
+
+.img-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: #F5F5F5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.img-placeholder text {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.order-info {
+  flex: 1;
+  margin-left: 20rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+.order-items {
+  font-size: 28rpx;
+  color: #333333;
+  margin-bottom: 10rpx;
+}
+
+.order-time {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.order-price {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2D5678;
+}
+
+.order-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 20rpx;
+}
+
+.order-btn {
+  padding: 12rpx 30rpx;
+  border-radius: 30rpx;
+  background-color: #F5F5F5;
+}
+
+.order-btn text {
+  font-size: 24rpx;
+  color: #666666;
+}
+
+.order-btn.primary {
+  background-color: #2D5678;
+}
+
+.order-btn.primary text {
+  color: #FFFFFF;
+}

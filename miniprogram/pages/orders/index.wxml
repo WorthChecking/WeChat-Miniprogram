@@ -1,0 +1,61 @@
+<view class="page">
+  <view class="tabs">
+    <view class="tab-item {{currentTab === index ? 'active' : ''}}" 
+          wx:for="{{tabs}}" 
+          wx:key="status" 
+          bindtap="onTabTap" 
+          data-index="{{index}}">
+      <text>{{item.name}}</text>
+    </view>
+  </view>
+
+  <scroll-view scroll-y class="order-list" wx:if="{{!loading}}">
+    <view class="order-card" wx:for="{{orders}}" wx:key="_id" bindtap="onOrderTap" data-id="{{item._id}}">
+      <view class="order-header">
+        <text class="order-no">{{item.orderNo}}</text>
+        <view class="order-status tag-orange">
+          <text>{{statusMap[item.status]}}</text>
+        </view>
+      </view>
+      
+      <view class="order-content">
+        <view class="order-img">
+          <image src="{{item.items[0].image}}" mode="aspectFill" wx:if="{{item.items[0].image}}"></image>
+          <view class="img-placeholder" wx:else>
+            <text>{{item.items[0].name}}</text>
+          </view>
+        </view>
+        <view class="order-info">
+          <text class="order-items">{{item.items[0].name}} x{{item.items[0].quantity}}</text>
+          <text class="order-time">{{item.createTimeFormatted}}</text>
+        </view>
+        <text class="order-price">¥{{item.totalPrice}}</text>
+      </view>
+      
+      <view class="order-footer">
+        <view class="order-btn primary" 
+              wx:if="{{item.status === 'pending' && item.payStatus !== 'paid'}}" 
+              catchtap="onPayNow" 
+              data-id="{{item._id}}" 
+              data-order="{{item}}">
+          <text>去支付</text>
+        </view>
+        <view class="order-btn primary" 
+              wx:elif="{{item.status === 'making' || item.status === 'pickup'}}">
+          <text>查看详情</text>
+        </view>
+        <view class="order-btn" wx:else catchtap="onReorderTap" data-id="{{item._id}}">
+          <text>再来一单</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty-state" wx:if="{{orders.length === 0}}">
+      <text class="empty-text">暂无订单</text>
+    </view>
+  </scroll-view>
+
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>

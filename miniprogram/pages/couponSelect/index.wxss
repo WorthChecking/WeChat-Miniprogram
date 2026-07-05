@@ -1,0 +1,173 @@
+.page {
+  min-height: 100vh;
+  background-color: #F5F3EE;
+  padding: 20rpx 30rpx;
+  padding-bottom: 140rpx;
+}
+
+.coupon-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.coupon-card {
+  display: flex;
+  background: #FFFFFF;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.coupon-card.disabled {
+  opacity: 0.5;
+}
+
+.coupon-card.selected {
+  border: 3rpx solid #2D5678;
+}
+
+.coupon-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 160rpx;
+  flex-shrink: 0;
+  border-right: 2rpx dashed #E0E0E0;
+  padding-right: 20rpx;
+}
+
+.coupon-amount {
+  display: flex;
+  align-items: baseline;
+}
+
+.amount-num {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #2D5678;
+}
+
+.amount-unit {
+  font-size: 24rpx;
+  color: #2D5678;
+  margin-left: 4rpx;
+}
+
+.coupon-period {
+  font-size: 18rpx;
+  color: #999999;
+  margin-top: 6rpx;
+}
+
+.coupon-right {
+  flex: 1;
+  padding-left: 20rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.coupon-rule {
+  font-size: 26rpx;
+  color: #333333;
+  margin-bottom: 8rpx;
+}
+
+.coupon-status {
+  margin-top: 4rpx;
+}
+
+.status-text {
+  font-size: 22rpx;
+  color: #999999;
+}
+
+.status-text.usable {
+  color: #2D5678;
+}
+
+.check-mark {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 60rpx 60rpx 0;
+  border-color: transparent #2D5678 transparent transparent;
+}
+
+.check-mark text {
+  position: absolute;
+  top: 6rpx;
+  right: -52rpx;
+  font-size: 24rpx;
+  color: #FFFFFF;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 200rpx 0;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999999;
+}
+
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 200rpx 0;
+}
+
+.loading-state text {
+  font-size: 28rpx;
+  color: #999999;
+}
+
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #FFFFFF;
+  padding: 20rpx 30rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  display: flex;
+  gap: 20rpx;
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.08);
+}
+
+.clear-btn {
+  flex: 1;
+  background: #F5F5F5;
+  border-radius: 50rpx;
+  padding: 24rpx;
+  text-align: center;
+}
+
+.clear-btn text {
+  font-size: 28rpx;
+  color: #666666;
+}
+
+.confirm-btn {
+  flex: 1;
+  background: #2D5678;
+  border-radius: 50rpx;
+  padding: 24rpx;
+  text-align: center;
+}
+
+.confirm-btn text {
+  font-size: 28rpx;
+  color: #FFFFFF;
+  font-weight: 500;
+}

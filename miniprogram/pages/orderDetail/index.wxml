@@ -1,0 +1,73 @@
+<view class="page" wx:if="{{!loading && order}}">
+  <view class="section">
+    <view class="section-title">订单信息</view>
+    <view class="divider"></view>
+    <view class="info-row">
+      <text class="info-label">订单编号</text>
+      <view class="info-value" bindtap="onCopyOrderNo">
+        <text>{{order.orderNo}}</text>
+      </view>
+    </view>
+    <view class="info-row">
+      <text class="info-label">下单时间</text>
+      <text class="info-value">{{order.createTimeFormatted}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">用餐方式</text>
+      <text class="info-value">{{order.type === 'dine-in' ? '堂食 · 桌号' + order.tableNo : '自提'}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">订单状态</text>
+      <view class="status-tag">
+        <text>{{statusMap[order.status]}}</text>
+      </view>
+    </view>
+    <view class="info-row" wx:if="{{order.payStatus}}">
+      <text class="info-label">支付状态</text>
+      <view class="status-tag {{order.payStatus === 'paid' ? 'success' : 'warning'}}">
+        <text>{{order.payStatus === 'paid' ? '已支付' : '待支付'}}</text>
+      </view>
+    </view>
+    <view class="info-row" wx:if="{{order.remark}}">
+      <text class="info-label">备注</text>
+      <text class="info-value remark-text">{{order.remark}}</text>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">商品明细</view>
+    <view class="divider"></view>
+    <view class="goods-item" wx:for="{{order.items}}" wx:key="id">
+      <view class="goods-info-row">
+        <text class="goods-name">{{item.name}} x{{item.quantity}}</text>
+        <text class="goods-price">¥{{item.price * item.quantity}}</text>
+      </view>
+      <text class="goods-specs" wx:if="{{item.specs}}">{{item.specs}}</text>
+    </view>
+    <view class="divider"></view>
+    <view class="total-row">
+      <text class="total-label">合计</text>
+      <text class="total-price">¥{{order.totalPrice}}</text>
+    </view>
+  </view>
+
+  <view class="section pickup-section" wx:if="{{order.pickupCode && order.payStatus === 'paid' && order.type !== 'dine-in'}}">
+    <view class="section-title">取餐码</view>
+    <text class="pickup-tip">请凭此码取餐</text>
+    <view class="pickup-code">
+      <text>{{order.pickupCode}}</text>
+    </view>
+  </view>
+
+  <view class="confirm-btn pay-btn" wx:if="{{order.status === 'pending' && order.payStatus !== 'paid'}}" bindtap="onPayNow">
+    <text>立即支付 ¥{{order.totalPrice}}</text>
+  </view>
+
+  <view class="confirm-btn" wx:if="{{order.status === 'pickup' && order.type !== 'dine-in'}}" bindtap="onConfirmPickup">
+    <text>确认取餐</text>
+  </view>
+</view>
+
+<view class="loading" wx:if="{{loading}}">
+  <text>加载中...</text>
+</view>

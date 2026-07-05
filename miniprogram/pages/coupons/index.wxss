@@ -1,0 +1,156 @@
+.page {
+  min-height: 100vh;
+  background-color: #F5F3EE;
+  padding: 20rpx 30rpx;
+}
+
+.coupon-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.coupon-card {
+  background: #FFFFFF;
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+}
+
+.coupon-card.disabled {
+  opacity: 0.6;
+}
+
+.coupon-main {
+  display: flex;
+  padding: 24rpx;
+}
+
+.coupon-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 180rpx;
+  flex-shrink: 0;
+  border-right: 2rpx dashed #E0E0E0;
+  padding-right: 24rpx;
+}
+
+.coupon-amount {
+  display: flex;
+  align-items: baseline;
+}
+
+.amount-num {
+  font-size: 56rpx;
+  font-weight: 700;
+  color: #2D5678;
+}
+
+.amount-unit {
+  font-size: 28rpx;
+  color: #2D5678;
+  margin-left: 4rpx;
+}
+
+.coupon-period {
+  font-size: 20rpx;
+  color: #999999;
+  margin-top: 8rpx;
+  text-align: center;
+}
+
+.coupon-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  padding-left: 24rpx;
+  position: relative;
+}
+
+.coupon-use-btn {
+  background-color: #2D5678;
+  border-radius: 30rpx;
+  padding: 12rpx 32rpx;
+}
+
+.coupon-use-btn text {
+  font-size: 26rpx;
+  color: #FFFFFF;
+}
+
+.coupon-use-btn.btn-disabled {
+  background-color: #CCCCCC;
+}
+
+.coupon-disabled-tip {
+  font-size: 20rpx;
+  color: #999999;
+  margin-top: 8rpx;
+}
+
+.expand-arrow {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: transform 0.3s;
+}
+
+.expand-arrow text {
+  font-size: 28rpx;
+  color: #CCCCCC;
+}
+
+.expand-arrow.expanded {
+  transform: translateY(-50%) rotate(90deg);
+}
+
+.coupon-detail {
+  padding: 0 24rpx 24rpx 24rpx;
+  border-top: 1rpx solid #F0F0F0;
+  padding-top: 20rpx;
+}
+
+.detail-rule {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.detail-label {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.detail-text {
+  font-size: 24rpx;
+  color: #666666;
+  flex: 1;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 200rpx 0;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999999;
+}
+
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 200rpx 0;
+}
+
+.loading-state text {
+  font-size: 28rpx;
+  color: #999999;
+}

@@ -1,0 +1,62 @@
+<view class="page">
+  <view class="header">
+    <view class="header-content">
+      <text class="store-name">{{storeInfo.name}}</text>
+      <text class="store-status">{{storeInfo.status}} · {{storeInfo.openTime}}-{{storeInfo.closeTime}}</text>
+    </view>
+    <view class="search-bar" bindtap="onSearchTap">
+      <image class="search-icon-img" src="/images/icons/search.png" mode="aspectFit" />
+      <text class="search-placeholder">搜索菜品...</text>
+    </view>
+  </view>
+
+  <view class="notice-bar" wx:if="{{storeInfo.notice}}">
+    <text class="notice-icon">📢</text>
+    <swiper class="notice-swiper" vertical autoplay circular interval="3000">
+      <swiper-item>
+        <text class="notice-text">{{storeInfo.notice}}</text>
+      </swiper-item>
+    </swiper>
+  </view>
+
+  <view class="content">
+    <view class="entry-cards">
+      <view class="entry-card" bindtap="onDineInTap">
+        <view class="entry-icon bg-light-orange">
+          <text class="icon-text">在店堂食</text>
+          <image class="entry-icon-img" src="/images/icons/dine-in.png" mode="aspectFit" />
+        </view>
+      </view>
+      <view class="entry-card" bindtap="onTakeoutTap">
+        <view class="entry-icon bg-light-orange">
+          <text class="icon-text">打包自提</text>
+          <image class="entry-icon-img" src="/images/icons/takeout.png" mode="aspectFit" />
+        </view>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-header">
+        <text class="section-title">今日推荐</text>
+      </view>
+      <swiper class="recommend-swiper" autoplay circular interval="3500" duration="500" indicator-dots indicator-color="rgba(255,140,66,0.3)" indicator-active-color="#FF8C42">
+        <swiper-item wx:for="{{recommendGoods}}" wx:key="_id" bindtap="onGoodsTap" data-id="{{item._id}}">
+          <view class="recommend-slide">
+            <view class="recommend-img-wrap bg-light-orange">
+              <image wx:if="{{item.image}}" class="recommend-img" src="{{item.image}}" mode="aspectFill" />
+              <text wx:else class="recommend-name-fallback">{{item.name}}</text>
+            </view>
+            <view class="recommend-info">
+              <text class="recommend-title">{{item.name}}</text>
+              <text class="recommend-price">¥{{item.price}}</text>
+            </view>
+          </view>
+        </swiper-item>
+      </swiper>
+      <view class="recommend-empty" wx:if="{{recommendGoods.length === 0}}">
+        <text class="empty-text">暂无推荐菜品</text>
+      </view>
+    </view>
+
+  </view>
+</view>

@@ -1,0 +1,136 @@
+.page {
+  min-height: 100vh;
+  background-color: #F5F3EE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.payment-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60rpx 40rpx;
+  background-color: #FFFFFF;
+  border-radius: 24rpx;
+  margin: 40rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
+  width: calc(100% - 80rpx);
+}
+
+.loading-icon {
+  width: 120rpx;
+  height: 120rpx;
+  margin-bottom: 40rpx;
+}
+
+.spinner {
+  width: 100%;
+  height: 100%;
+  border: 6rpx solid #F5F5F5;
+  border-top-color: #2D5678;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.success-icon {
+  width: 120rpx;
+  height: 120rpx;
+  background-color: #52C41A;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 40rpx;
+}
+
+.success-icon text {
+  font-size: 60rpx;
+  color: #FFFFFF;
+}
+
+.failed-icon {
+  width: 120rpx;
+  height: 120rpx;
+  background-color: #FF4D4F;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 40rpx;
+}
+
+.failed-icon text {
+  font-size: 60rpx;
+  color: #FFFFFF;
+}
+
+.status-text {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 20rpx;
+}
+
+.success-text {
+  color: #52C41A;
+}
+
+.failed-text {
+  color: #FF4D4F;
+}
+
+.order-info {
+  font-size: 26rpx;
+  color: #999999;
+  margin-bottom: 10rpx;
+}
+
+.price-info {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2D5678;
+  margin-bottom: 30rpx;
+}
+
+.countdown-tip {
+  margin-bottom: 40rpx;
+}
+
+.countdown-tip text {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.btn-group {
+  display: flex;
+  width: 100%;
+  gap: 20rpx;
+}
+
+.btn {
+  flex: 1;
+  padding: 24rpx 0;
+  border-radius: 50rpx;
+  text-align: center;
+  background-color: #F5F5F5;
+}
+
+.btn text {
+  font-size: 28rpx;
+  color: #666666;
+}
+
+.btn.primary {
+  background-color: #2D5678;
+}
+
+.btn.primary text {
+  color: #FFFFFF;
+}
