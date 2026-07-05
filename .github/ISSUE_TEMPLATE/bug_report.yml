@@ -1,0 +1,66 @@
+name: 缺陷报告
+description: 小程序端 / 管理后台 / 云函数的某个行为与预期不符。
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈！**涉及支付、鉴权、用户数据的敏感问题请勿在此提交**，
+        见 [SECURITY.md](https://github.com/WorthChecking/WeChat-Miniprogram/blob/main/SECURITY.md)。
+  - type: textarea
+    id: what
+    attributes:
+      label: 实际表现与预期
+      description: 你期望发生什么？实际发生了什么？贴出关键报错与日志。
+    validations:
+      required: true
+  - type: dropdown
+    id: component
+    attributes:
+      label: 出现模块
+      options:
+        - 小程序端（miniprogram）
+        - 管理后台（admin）
+        - 云函数（cloudfunctions）
+        - 文档
+        - 其他
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: 微信开发者工具版本 / 基础库版本
+      description: 例如 DevTools 1.06.x / 基础库 3.0.0
+      placeholder: "DevTools 1.06.240730 / 基础库 3.0.0"
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: 操作系统
+      placeholder: Windows 11 / macOS 14 / Ubuntu 24.04
+    validations:
+      required: true
+  - type: input
+    id: node
+    attributes:
+      label: Node.js 版本（仅管理后台 / 云函数相关）
+      description: `node --version` 输出
+      placeholder: "v18.20.0"
+    validations:
+      required: false
+  - type: textarea
+    id: repro
+    attributes:
+      label: 复现步骤
+      description: 最小可复现步骤，必要时贴出代码片段或云函数入参。
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: 关键日志 / 报错堆栈
+      description: 控制台输出、云函数日志、网络请求响应等。
+      render: shell
+    validations:
+      required: false

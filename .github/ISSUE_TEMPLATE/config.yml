@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 安全漏洞（私下报告）
+    url: https://github.com/WorthChecking/WeChat-Miniprogram/security/advisories/new
+    about: 涉及支付 / 鉴权 / 用户数据的敏感问题请走 Security Advisory，不要开公开 Issue。
+  - name: 贡献指南
+    url: https://github.com/WorthChecking/WeChat-Miniprogram/blob/main/CONTRIBUTING.md
+    about: 提 PR 前请先阅读贡献指南与代码规范。

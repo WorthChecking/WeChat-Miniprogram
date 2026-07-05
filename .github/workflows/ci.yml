@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-admin:
+    name: Build admin (Vue 3 + Vite)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: admin/package.json
+
+      - name: Install dependencies
+        working-directory: admin
+        run: npm install
+
+      - name: Build
+        working-directory: admin
+        run: npm run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-dist
+          path: admin/dist
+          retention-days: 7
+
+  lint-cloudfunctions:
+    name: Lint cloud functions (Node syntax check)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Syntax check all cloud functions
+        run: |
+          set -e
+          for dir in cloudfunctions/*/; do
+            fn=$(basename "$dir")
+            if [ -f "$dir/index.js" ]; then
+              echo "Checking $fn/index.js ..."
+              node --check "$dir/index.js"
+            fi
+          done
