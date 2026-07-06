@@ -9,16 +9,16 @@
 │                      微信云开发（CloudBase）                  │
 │                                                              │
 │  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐    │
-│  │  云函数 (10)  │   │  云数据库 (8) │   │   云存储      │    │
+│  │  云函数 (10)  │   │  云数据库 (9) │   │   云存储      │    │
 │  │              │   │              │   │              │    │
 │  │ createOrder  │──▶│ orders       │   │ goods/       │    │
 │  │ createPayment│──▶│ goods        │   │ (商品图片)    │    │
 │  │ payCallback  │──▶│ coupons      │   └──────────────┘    │
 │  │ cancelAndRefund│ │ tableCodes   │                       │
 │  │ ...          │   │ admins       │   ┌──────────────┐    │
-│  └──────┬───────┘   │ settings     │   │  云支付       │    │
-│         │           └──────────────┘   │ cloudPay     │    │
-│         │                              └──────┬───────┘    │
+│  └──────┬───────┘   │ adminSessions│   │  云支付       │    │
+│         │           │ settings     │   │ cloudPay     │    │
+│         │           └──────────────┘   └──────┬───────┘    │
 └─────────┼─────────────────────────────────────┼────────────┘
           │                                     │
           │ wx.cloud.callFunction               │ 微信支付
@@ -151,12 +151,26 @@
 |---|---|---|
 | `_id` | string | 管理员 ID |
 | `username` | string | 账号 |
-| `password` | string | 密码（**必须加盐哈希**） |
+| `password` | string | 密码（**scrypt 加盐哈希**，格式 `scrypt:{salt}:{hash}`） |
 | `wechatId` | string | 微信号（扫码登录用） |
 | `role` | string | 角色（`admin`） |
 | `createTime` | date | 创建时间 |
 
 **权限规则**：仅创建者可读写，禁止前端直读
+
+### `adminSessions` — 管理员会话
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| `_id` | string | 会话 ID |
+| `token` | string | 随机 token（32 字节 hex，登录成功后由 `login` action 生成） |
+| `username` | string | 关联的管理员账号 |
+| `createTime` | date | 创建时间 |
+| `expireTime` | date | 过期时间（默认 7 天） |
+
+**权限规则**：仅创建者可读写，禁止前端直读。前端通过 `loginAdmin` 的 `login` action 获取 token，存储于 `localStorage('admin_auth_token')`，并在每次 `callFunction` 时由 `admin/src/api/cloud.js` 自动注入到 `data.token`。云函数端调用 `verifyAdminToken(token)` 校验有效性。
+
+> ⚠️ 历史明文密码兼容：`login` action 检测到 `password` 字段非 `scrypt:` 前缀时，会自动升级为 scrypt 哈希。
 
 ## 🔄 订单状态机
 
@@ -235,10 +249,48 @@
 | `cancelAndRefund` | `orderId` | 取消订单并退款 | 用户/管理员 |
 | `updateOrderStatus` | `orderId, status` | 更新订单状态 | 管理员 |
 | `getAdminOrders` | `status, page` | 管理端订单查询 | 管理员 |
-| `couponManager` | `action, ...` | 优惠券 CRUD 与核销 | 管理员 |
-| `generateTableCode` | `count, prefix` | 批量生成桌码 | 管理员 |
-| `loginAdmin` | `action, ...` | 管理员登录/注册/店铺配置 | 多 action 混合 |
-| `resetDailySales` | — | 定时重置 `dailySales` 字段 | 定时触发器 |
+| `couponManager` | `action, ...` | 优惠券 CRUD 与核销 | createCoupon/updateCoupon/deleteCoupon/setCouponGoods/getCoupons 需 token；getUserCoupons/grantCoupon(无openid)/checkCouponUsable/getCouponGoods 用 openid |
+| `generateTableCode` | `count, prefix` | 批量生成桌码 | 管理员 token |
+| `loginAdmin` | `action, ...` | 管理员登录/注册/店铺配置/鉴权 | login/initAdmin/getStore 公开；register/uploadImage/updateGoodsStatus/toggleRecommend/updateStore/updateDoc/changePassword 需 token |
+| `resetDailySales` | — | 定时重置 `sales` 字段 | 定时触发器放行；外部调用需 token |
+
+## 🔐 管理端鉴权流程
+
+```
+Login.vue              loginAdmin(login)         adminSessions           后续云函数调用
+   │                       │                        │                        │
+   │ 1. username/password  │                        │                        │
+   │ ─────────────────▶    │                        │                        │
+   │                       │ 2. 查 admins 集合       │                        │
+   │                       │   verifyPassword        │                        │
+   │                       │   (scrypt 或历史明文)    │                        │
+   │                       │ 3. 若为明文则升级哈希    │                        │
+   │                       │ 4. 生成 token           │                        │
+   │                       │ ──────────────────▶     │                        │
+   │                       │   存入 {token,username,  │                        │
+   │                       │    expireTime=+7d}      │                        │
+   │ 5. 返回 token          │                        │                        │
+   │ ◀─────────────────    │                        │                        │
+   │ 6. localStorage 存 token                        │                        │
+   │                                                                       │
+   │ 7. callFunction(name, data)                                            │
+   │ ──────────────────────────────────────────────────────────────────▶    │
+   │    cloud.js 自动注入 data.token                                       │
+   │                                                                       │
+   │                                                       8. verifyAdminToken(token)
+   │                                                          查 adminSessions
+   │                                                          校验 expireTime
+   │                                                          失败返回 {unauthorized:true}
+   │ 9. 若 unauthorized，cloud.js 清除 localStorage 并跳转 /login            │
+```
+
+**首次部署初始化**（admins 集合为空时）：
+1. 在微信开发者工具 → 云开发控制台 → 云函数 → `loginAdmin` → 测试
+2. 传入参数 `{ "action": "initAdmin", "username": "yourAdmin", "password": "强密码" }`
+3. 创建成功后该 action 永久拒绝（admins 集合非空时返回错误）
+4. 使用创建的账号在管理后台 Login.vue 登录
+
+**密码哈希方案**：`scrypt`（Node.js `crypto.scryptSync`），格式 `scrypt:{salt_hex(16B)}:{hash_hex(64B)}`。历史明文密码在首次登录时自动升级为哈希。
 
 ## 🔗 相关文档
 

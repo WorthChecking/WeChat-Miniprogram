@@ -7,7 +7,7 @@
 在贡献代码前，请务必遵守以下三条绝对红线（详见 [SECURITY.md](SECURITY.md)）：
 
 1. **支付红线**：`createPayment` 的金额必须由服务端从 `goods` 集合实时计算，**禁止信任前端传入的金额**；`payCallback` 必须校验微信签名并做幂等处理；`cancelAndRefund` 涉及退款的逻辑必须本地充分验证，避免资金回归。
-2. **鉴权红线**：所有管理端云函数（`getAdminOrders` / `couponManager` / `generateTableCode` / `loginAdmin` / `resetDailySales`）必须在函数内校验调用者为 `admins` 集合中的有效管理员，**不得依赖前端隐藏入口或路由守卫**。前端鉴权只是体验优化，服务端鉴权才是安全边界。
+2. **鉴权红线**：所有管理端云函数（`updateOrderStatus` / `getAdminOrders` / `cancelAndRefund` 管理员侧 / `couponManager` 写操作 / `generateTableCode` / `loginAdmin` 写操作 / `resetDailySales` 外部调用）必须通过 `adminSessions` 集合校验有效 token，**不得依赖前端隐藏入口或路由守卫**。前端鉴权只是体验优化，服务端鉴权才是安全边界。
 3. **数据红线**：`admins` 集合的密码必须加盐哈希存储，**禁止明文**；`orders` 集合的权限规则必须为 `openid == auth.openid`（用户仅能读自己的订单）；不得提交真实的云环境 ID、AppSecret、订单导出文件（`database_export-*.json`）。
 
 ## 🛠️ 开发环境搭建

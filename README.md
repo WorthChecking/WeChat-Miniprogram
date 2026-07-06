@@ -135,6 +135,13 @@ this.globalData = {
 ```
 
 5. 右键 `cloudfunctions` 目录 →「上传并部署：云端安装依赖」
+6. **初始化管理员账号**（首次部署必做）：在微信开发者工具 → 云开发控制台 → 云函数 → `loginAdmin` → 测试，传入以下参数创建首个管理员：
+
+```json
+{ "action": "initAdmin", "username": "yourAdmin", "password": "你的强密码" }
+```
+
+> 该 action 仅在 `admins` 集合为空时生效，创建成功后永久拒绝。密码使用 scrypt 加盐哈希存储。详见 [技术架构 - 管理端鉴权流程](docs/architecture.md#-管理端鉴权流程)。
 
 ### 3️⃣ 管理后台
 
@@ -183,9 +190,9 @@ npm run build
 |---|---|
 | **数据库权限** | `admins`/`settings` 仅创建者可读写；`orders` 限 `openid == auth.openid`；其余集合所有人可读、仅管理员可写 |
 | **支付校验** | `createPayment` 金额必须由服务端从 `goods` 集合实时计算，**禁止信任前端传入金额**；`payCallback` 必须校验微信签名并做幂等 |
-| **云函数鉴权** | `getAdminOrders`/`couponManager`/`generateTableCode`/`loginAdmin`/`resetDailySales` 必须在函数内校验调用者为 `admins` 有效管理员，**不得依赖前端隐藏入口** |
+| **云函数鉴权** | 所有写操作云函数（`updateOrderStatus`/`getAdminOrders`/`cancelAndRefund` 管理员侧/`couponManager` 写操作/`generateTableCode`/`loginAdmin` 写操作/`resetDailySales` 外部调用）均通过 `adminSessions` 集合校验 token，**不得依赖前端隐藏入口** |
 | **凭据管理** | AppSecret 仅放在云函数环境变量或小程序后台，**绝不可出现在前端代码或 git 仓库**；云环境 ID 已替换为 `YOUR_ENV_ID` 占位符 |
-| **密码存储** | `admins` 集合的密码必须加盐哈希，禁止明文 |
+| **密码存储** | `admins` 集合的密码使用 scrypt 加盐哈希（格式 `scrypt:{salt}:{hash}`），历史明文密码在首次登录时自动升级 |
 
 ## 📚 文档导航
 

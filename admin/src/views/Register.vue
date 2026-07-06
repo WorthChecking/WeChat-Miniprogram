@@ -6,7 +6,7 @@
     <div class="login-right">
       <div class="register-card">
         <h2 class="register-title">管理员注册</h2>
-        <p class="register-subtitle">注册管理员账号</p>
+        <p class="register-subtitle">注册管理员账号（需已登录管理员授权）</p>
 
         <div class="form-group">
           <label class="form-label">账号</label>
@@ -146,6 +146,11 @@ function refreshCaptcha() {
 }
 
 async function handleRegister() {
+  var hasToken = !!localStorage.getItem('admin_auth_token')
+  if (!hasToken) {
+    errorMsg.value = '请先登录管理员账号后再注册新管理员'
+    return
+  }
   if (!form.username.trim()) {
     errorMsg.value = '请输入账号'
     return

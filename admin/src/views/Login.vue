@@ -58,8 +58,9 @@
         <p class="login-footer">© 2025 店铺管理 商户管理系统</p>
 
         <div class="register-link">
-          <span>还没有管理员账号？</span>
-          <router-link to="/register" class="link-green">注册账号</router-link>
+          <span>首次部署请在云开发控制台调用 </span>
+          <code class="link-green">initAdmin</code>
+          <span> 初始化（详见 README）</span>
         </div>
       </div>
     </div>
@@ -104,7 +105,9 @@ async function handleLogin() {
     })
 
     if (res.success) {
-      localStorage.setItem('admin_auth_token', 'admin_' + Date.now())
+      if (res.token) {
+        localStorage.setItem('admin_auth_token', res.token)
+      }
       localStorage.setItem('admin_username', res.username || form.username.trim())
       router.push('/')
     } else {

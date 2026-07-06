@@ -3,30 +3,72 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 
 const db = cloud.database();
 
+async function verifyAdminToken(token) {
+  if (!token) return { valid: false, errMsg: '未登录' };
+  try {
+    var res = await db.collection('adminSessions')
+      .where({ token: token })
+      .limit(1)
+      .get();
+    if (!res.data || res.data.length === 0) {
+      return { valid: false, errMsg: '登录已失效，请重新登录' };
+    }
+    var session = res.data[0];
+    var expTime = session.expireTime;
+    if (typeof expTime === 'string') expTime = new Date(expTime);
+    if (expTime && Date.now() > new Date(expTime).getTime()) {
+      return { valid: false, errMsg: '登录已过期，请重新登录' };
+    }
+    return { valid: true, username: session.username };
+  } catch (e) {
+    return { valid: false, errMsg: '鉴权异常' };
+  }
+}
+
 exports.main = async (event, context) => {
   const { action } = event;
 
   try {
     if (action === 'createCoupon') {
+      var a1 = await verifyAdminToken(event.token);
+      if (!a1.valid) return { success: false, unauthorized: true, errMsg: a1.errMsg };
       return await createCoupon(event);
     }
     if (action === 'updateCoupon') {
+      var a2 = await verifyAdminToken(event.token);
+      if (!a2.valid) return { success: false, unauthorized: true, errMsg: a2.errMsg };
       return await updateCoupon(event);
     }
     if (action === 'deleteCoupon') {
+      var a3 = await verifyAdminToken(event.token);
+      if (!a3.valid) return { success: false, unauthorized: true, errMsg: a3.errMsg };
       return await deleteCoupon(event);
     }
     if (action === 'getCoupons') {
+      var a4 = await verifyAdminToken(event.token);
+      if (!a4.valid) return { success: false, unauthorized: true, errMsg: a4.errMsg };
       return await getCoupons(event);
+    }
+    if (action === 'setCouponGoods') {
+      var a5 = await verifyAdminToken(event.token);
+      if (!a5.valid) return { success: false, unauthorized: true, errMsg: a5.errMsg };
+      return await setCouponGoods(event);
     }
     if (action === 'getUserCoupons') {
       return await getUserCoupons(event);
     }
     if (action === 'grantCoupon') {
+      if (event.openid) {
+        var a6 = await verifyAdminToken(event.token);
+        if (!a6.valid) return { success: false, unauthorized: true, errMsg: a6.errMsg };
+      }
       return await grantCoupon(event);
     }
     if (action === 'checkCouponUsable') {
       return await checkCouponUsable(event);
+    }
+    if (action === 'getCouponGoods') {
+      return await getCouponGoods(event);
     }
     return { success: false, errMsg: '未知操作' };
   } catch (err) {
@@ -94,6 +136,21 @@ async function getCoupons(event) {
   }
   const res = await query.limit(100).get();
   return { success: true, data: res.data };
+}
+
+async function setCouponGoods(event) {
+  const { couponId, goodsIds } = event;
+  if (!couponId) {
+    return { success: false, errMsg: '缺少优惠券ID' };
+  }
+  await db.collection('couponGoods').where({ couponId }).remove();
+  var ids = goodsIds || [];
+  for (var i = 0; i < ids.length; i++) {
+    await db.collection('couponGoods').add({
+      data: { couponId: couponId, goodsId: ids[i] }
+    });
+  }
+  return { success: true };
 }
 
 async function getUserCoupons(event) {
@@ -233,4 +290,16 @@ async function checkCouponUsable(event) {
     return { success: true, usable: false, reason: '目前无法使用该优惠券' };
   }
   return { success: true, usable: false, reason: '目前无法使用该优惠券' };
+}
+
+async function getCouponGoods(event) {
+  const { couponId } = event;
+  if (!couponId) {
+    return { success: false, errMsg: '缺少优惠券ID' };
+  }
+  const res = await db.collection('couponGoods')
+    .where({ couponId: couponId })
+    .limit(100)
+    .get();
+  return { success: true, data: res.data };
 }

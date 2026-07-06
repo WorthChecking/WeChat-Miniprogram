@@ -33,13 +33,13 @@ William 厨房点餐系统是一个包含微信支付、用户订单与管理员
 部署本项目时必须完成以下配置，否则存在安全风险：
 
 1. **数据库权限规则**：在云开发控制台为每个集合配置权限。
-   - `admins`、`settings`：仅创建者可读写，禁止前端直接读。
+   - `admins`、`settings`、`adminSessions`：仅创建者可读写，禁止前端直接读。
    - `orders`：用户仅能读自己的订单（`openid == auth.openid`），写通过云函数。
    - `goods`、`categories`、`coupons`、`couponGoods`、`tableCodes`：所有人可读，仅管理员可写。
-2. **云函数鉴权**：所有 `getAdminOrders / couponManager / generateTableCode / loginAdmin / resetDailySales` 等管理端函数，必须在 `index.js` 内校验调用者为 `admins` 集合中的有效管理员，**不能依赖前端隐藏入口**。
+2. **云函数鉴权**：所有管理端写操作云函数（`updateOrderStatus` / `getAdminOrders` / `cancelAndRefund` 管理员侧 / `couponManager` 写操作 / `generateTableCode` / `loginAdmin` 写操作 / `resetDailySales` 外部调用）必须通过 `adminSessions` 集合校验有效 token，**不能依赖前端隐藏入口或路由守卫**。token 由 `loginAdmin` 的 `login` action 生成（7 天有效期），前端 `callFunction` 自动注入。
 3. **支付校验**：`createPayment` 的金额必须由服务端从 `goods` 集合实时计算，**禁止信任前端传入的金额**。`payCallback` 必须校验微信签名并做幂等处理。
 4. **AppSecret**：仅放在云函数环境变量或微信小程序后台，**绝不可出现在前端代码或 git 仓库**。
-5. **管理员账户**：`admins` 集合存储的密码必须加盐哈希，禁止明文。
+5. **管理员账户**：`admins` 集合存储的密码必须 scrypt 加盐哈希（格式 `scrypt:{salt}:{hash}`），禁止明文。首个管理员通过 `loginAdmin` 的 `initAdmin` action 创建（仅在 `admins` 集合为空时生效）。
 
 ## 数据与隐私
 

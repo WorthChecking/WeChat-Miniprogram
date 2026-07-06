@@ -28,14 +28,37 @@ export function getAuth() {
   return auth
 }
 
+const PUBLIC_ACTIONS = {
+  loginAdmin: ['login', 'initAdmin', 'getStore', 'getOpenId', 'create', 'poll', 'confirm']
+}
+
+function isPublicAction(name, data) {
+  if (!data || typeof data.action !== 'string') return false
+  var list = PUBLIC_ACTIONS[name]
+  return !!(list && list.indexOf(data.action) !== -1)
+}
+
 export async function callFunction(name, data = {}) {
   if (!app) initCloud()
+  var payload = Object.assign({}, data)
+  if (!isPublicAction(name, data)) {
+    var token = localStorage.getItem('admin_auth_token')
+    if (token) payload.token = token
+  }
   try {
     const res = await app.callFunction({
       name,
-      data
+      data: payload
     })
-    return res.result
+    var result = res.result
+    if (result && result.unauthorized) {
+      localStorage.removeItem('admin_auth_token')
+      localStorage.removeItem('admin_username')
+      if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+        window.location.href = '/login'
+      }
+    }
+    return result
   } catch (err) {
     console.error(`云函数 ${name} 调用失败:`, err)
     throw err
@@ -71,6 +94,11 @@ export async function testConnection() {
 
 export async function logout() {
   if (!auth) initCloud()
+  try {
+    await callFunction('loginAdmin', { action: 'logout' })
+  } catch (e) {
+    console.error('注销云函数调用失败:', e)
+  }
   await auth.signOut()
   localStorage.removeItem('admin_auth_token')
   localStorage.removeItem('admin_username')
