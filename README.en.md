@@ -142,6 +142,8 @@ this.globalData = {
 
 ### Admin dashboard
 
+#### Local development
+
 1. Install dependencies and start the dev server:
 
 ```bash
@@ -150,18 +152,24 @@ npm install
 npm run dev
 ```
 
-2. Open `http://localhost:3000` in your browser.
-3. Replace `ENV_ID` in `admin/src/api/cloud.js`:
+2. Open `http://localhost:3000` in your browser for local debugging.
+3. Replace `ENV_ID` in `admin/src/api/cloud.js` with your cloud env ID:
 
 ```javascript
 const ENV_ID = 'YOUR_ENV_ID'
 ```
 
-4. Build for production:
+#### Production deployment
+
+1. Build for production:
 
 ```bash
 npm run build
 ```
+
+2. Deploy `admin/dist/` to your own server or static hosting (WeChat CloudBase static hosting, Vercel, Netlify, Nginx, etc.).
+3. Access the admin dashboard via your own registered domain; HTTPS is required in production.
+4. Ensure the cloud env ID, database permission rules, and cloud function auth match the [deployment security checklist](#deployment-security-checklist).
 
 ### Cloud Database Collections
 
@@ -192,6 +200,16 @@ Before deploying to production, you **must** complete the following — otherwis
 5. **Admin passwords**: stored salted-hashed in `admins` — never plaintext
 
 Full details in [SECURITY.md](SECURITY.md).
+
+## Next Steps
+
+After deployment, proceed with:
+
+1. **CI checks**: On the next push or PR, [`.github/workflows/ci.yml`](.github/workflows/ci.yml) automatically runs the admin build and cloud function syntax checks — see the **Actions** tab.
+2. **Release**: [CHANGELOG.md](CHANGELOG.md) records v1.0.0; tag it `v1.0.0` on the [Releases](https://github.com/WorthChecking/WeChat-Miniprogram/releases) page.
+3. **Fill in env ID & AppID**: Replace `YOUR_ENV_ID` in [`miniprogram/app.js`](miniprogram/app.js) and [`admin/src/api/cloud.js`](admin/src/api/cloud.js) with your own cloud env ID; replace `appid` in `project.config.json` with your own AppID.
+4. **Upload cloud functions**: In WeChat DevTools, right-click the `cloudfunctions` directory → "Upload and Deploy: Install Dependencies in the Cloud".
+5. **Verify auth**: Audit database permission rules and cloud function auth per [SECURITY.md](SECURITY.md) to avoid privilege escalation and payment risks.
 
 ## Roadmap
 

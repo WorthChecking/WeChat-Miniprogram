@@ -133,7 +133,7 @@ git clone https://github.com/WorthChecking/WeChat-Miniprogram.git
 
 ```javascript
 this.globalData = {
-  env: "你的云环境ID",
+  env: "YOUR_ENV_ID",
   // ...
 };
 ```
@@ -141,6 +141,8 @@ this.globalData = {
 6. 右键 `cloudfunctions` 目录，选择「上传并部署：云端安装依赖」
 
 ### 管理后台
+
+#### 本地开发
 
 1. 安装依赖并启动开发服务器：
 
@@ -150,18 +152,24 @@ npm install
 npm run dev
 ```
 
-2. 浏览器访问 `http://localhost:3000`
-3. 修改 `admin/src/api/cloud.js` 中的 `ENV_ID` 为你的云环境 ID：
+2. 本地调试访问 `http://localhost:3000`
+3. 修改 `admin/src/api/cloud.js` 中的 `ENV_ID` 为您的云环境 ID：
 
 ```javascript
-const ENV_ID = '你的云环境ID'
+const ENV_ID = 'YOUR_ENV_ID'
 ```
 
-4. 构建生产版本：
+#### 生产部署
+
+1. 构建生产版本：
 
 ```bash
 npm run build
 ```
+
+2. 将 `admin/dist/` 部署到您自己的服务器或静态托管（如微信云开发静态网站托管、Vercel、Netlify、Nginx 等）
+3. 通过您注册的域名访问管理后台，生产环境必须配置 HTTPS
+4. 确保生产环境的云环境 ID、数据库权限规则与云函数鉴权与 [部署安全清单](#部署安全清单) 一致
 
 ### 云数据库集合
 
@@ -192,6 +200,16 @@ npm run build
 5. **管理员密码**：`admins` 集合存储的密码必须加盐哈希，禁止明文
 
 完整说明见 [SECURITY.md](SECURITY.md)。
+
+## 后续步骤
+
+部署完成后建议按以下步骤推进：
+
+1. **CI 自动检查**：下次 push 或提交 PR 时，[`.github/workflows/ci.yml`](.github/workflows/ci.yml) 会自动运行管理后台构建与云函数语法检查，结果在仓库 **Actions** 页面查看。
+2. **发布 Release**：[CHANGELOG.md](CHANGELOG.md) 已记录 v1.0.0，可在 [Releases](https://github.com/WorthChecking/WeChat-Miniprogram/releases) 页面打 `v1.0.0` tag 对应版本。
+3. **填入云环境 ID**：部署前在 [`miniprogram/app.js`](miniprogram/app.js) 与 [`admin/src/api/cloud.js`](admin/src/api/cloud.js) 中将 `YOUR_ENV_ID` 替换为您自己的云环境 ID；`project.config.json` 中的 `appid` 替换为您自己的 AppID。
+4. **上传云函数**：在微信开发者工具中右键 `cloudfunctions` 目录，选择「上传并部署：云端安装依赖」。
+5. **验证鉴权**：按 [SECURITY.md](SECURITY.md) 的部署清单逐项核对数据库权限规则与云函数鉴权，避免越权与支付风险。
 
 ## 路线图
 
