@@ -1,90 +1,146 @@
 # 贡献指南
 
-感谢你对 William 厨房点餐系统的关注。这是一个基于微信云开发的全栈项目，涵盖小程序端、管理后台与云函数三部分，欢迎提交 Issue 与 Pull Request。
+感谢你对 William 厨房点餐系统的关注！这是一个基于微信云开发的全栈项目，涵盖小程序端、管理后台与云函数三部分。本文档说明了参与贡献的流程与规范。
 
-## 项目结构
+## 📋 项目红线（必读）
 
-```
-miniprogram/      # 微信小程序端（WXML/WXSS/JS 原生）
-admin/            # 管理后台（Vue 3 + Vite 5 + Vue Router 4）
-cloudfunctions/   # 云函数（Node.js + wx-server-sdk）
-project.config.json   # 小程序项目配置
-```
+在贡献代码前，请务必遵守以下三条绝对红线（详见 [SECURITY.md](SECURITY.md)）：
 
-- 小程序端页面位于 `miniprogram/pages/`，每页包含 `.js / .wxml / .wxss / .json` 四件套。
-- 管理后台源码在 `admin/src/`，构建产物 `admin/dist/` 已被 `.gitignore` 忽略。
-- 每个云函数独立一个目录，含 `index.js / package.json / config.json`，部署时需「上传并部署：云端安装依赖」。
+1. **支付红线**：`createPayment` 的金额必须由服务端从 `goods` 集合实时计算，**禁止信任前端传入的金额**；`payCallback` 必须校验微信签名并做幂等处理；`cancelAndRefund` 涉及退款的逻辑必须本地充分验证，避免资金回归。
+2. **鉴权红线**：所有管理端云函数（`getAdminOrders` / `couponManager` / `generateTableCode` / `loginAdmin` / `resetDailySales`）必须在函数内校验调用者为 `admins` 集合中的有效管理员，**不得依赖前端隐藏入口或路由守卫**。前端鉴权只是体验优化，服务端鉴权才是安全边界。
+3. **数据红线**：`admins` 集合的密码必须加盐哈希存储，**禁止明文**；`orders` 集合的权限规则必须为 `openid == auth.openid`（用户仅能读自己的订单）；不得提交真实的云环境 ID、AppSecret、订单导出文件（`database_export-*.json`）。
 
-## 开发环境
+## 🛠️ 开发环境搭建
+
+### 前置依赖
 
 - [微信开发者工具](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html) 最新稳定版
 - Node.js 16+（管理后台构建）
-- 已开通微信云开发的小程序账号
+- 已开通微信云开发的微信小程序账号
 
-本地启动管理后台：
+### 小程序端
+
+1. 在微信开发者工具中导入项目根目录，填入 AppID
+2. 在 [`miniprogram/app.js`](miniprogram/app.js) 中填入云环境 ID
+3. 右键 `cloudfunctions` 目录 →「上传并部署：云端安装依赖」
+
+### 管理后台
 
 ```bash
 cd admin
 npm install
-npm run dev      # 默认 http://localhost:3000
+npm run dev      # 本地调试 http://localhost:3000
+npm run build    # 生产构建
 ```
 
-小程序端导入微信开发者工具，填入 AppID 并在 `miniprogram/app.js` 中配置云环境 ID。
+在 [`admin/src/api/cloud.js`](admin/src/api/cloud.js) 中填入云环境 ID。
 
-## 代码规范
-
-### 通用
-
-- 缩进 2 空格，文件末尾保留一个空行。
-- **不要提交敏感信息**：云环境 ID、AppSecret、数据库导出文件、个人 openid 等不得出现在代码或示例中。
-- `project.private.config.json` 与 `database_export-*.json` 已在 `.gitignore` 中忽略，请勿强行提交。
+## 📐 代码规范
 
 ### 小程序端（WXML/WXSS/JS）
 
-- 事件处理函数使用普通函数，**禁止使用箭头函数**（会丢失 `this`）。
-- 微信小程序对部分 ES2020+ 语法支持不全：**禁止使用可选链 `?.`、空值合并 `??`**，请用 `&&` / `||` 替代。
-- 数据更新使用 `this.setData({ key: value })`；深层路径用 `this.setData({ 'a.b.c': v })`。
-- 列表渲染必须写 `wx:key`，避免使用 `index` 作为 key（除非性能不敏感）。
+- 缩进 2 空格，文件末尾保留一个空行
+- 事件处理函数使用普通函数，**禁止使用箭头函数**（会丢失 `this`）
+- **禁止使用可选链 `?.`、空值合并 `??`**（微信小程序对部分 ES2020+ 语法支持不全），请用 `&&` / `||` 替代
+- 数据更新使用 `this.setData({ key: value })`；深层路径用 `this.setData({ 'a.b.c': v })`
+- 列表渲染必须写 `wx:key`，避免使用 `index` 作为 key（除非性能不敏感）
 
 ### 管理后台（Vue 3）
 
-- 组件采用 `<script setup>` 与 Composition API。
-- 路由守卫与鉴权逻辑位于 `admin/src/router/`，新增页面需同步注册路由并配置 `meta.requiresAuth`。
-- 云开发调用统一走 `admin/src/api/cloud.js` 封装，禁止在组件内直接 `@cloudbase/js-sdk` 调用。
+- 组件采用 `<script setup>` 与 Composition API
+- 路由守卫与鉴权逻辑位于 [`admin/src/router/`](admin/src/router/)，新增页面需同步注册路由并配置 `meta.requiresAuth`
+- 云开发调用统一走 [`admin/src/api/cloud.js`](admin/src/api/cloud.js) 封装，**禁止在组件内直接 `@cloudbase/js-sdk` 调用**
 
 ### 云函数（Node.js）
 
-- 统一 `wx-server-sdk`，`cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })`。
-- 返回结构保持 `{ code, msg, data }` 一致约定。
-- 涉及支付的函数（`createPayment` / `payCallback` / `cancelAndRefund`）修改时务必本地充分验证，避免资金逻辑回归。
+- 统一 `wx-server-sdk`，`cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })`
+- 返回结构保持 `{ success, errMsg, data }` 一致约定
+- 涉及支付的函数（`createPayment` / `payCallback` / `cancelAndRefund`）修改时务必本地充分验证
+- 管理端函数必须复核调用者身份（见鉴权红线）
 
-## 提交规范
+### 订单状态机约定
 
-使用 Conventional Commits 风格：
+| 状态码 | 名称 | 说明 |
+|---|---|---|
+| `making` | 制作中 | 订单创建后初始状态（待支付前） |
+| `pending` | 待支付 | 等待支付（`createPayment` 校验此状态） |
+| `preparing` | 已支付/备餐中 | `payCallback` 成功后流转到此 |
+| `completed` | 已完成 | 商家确认出餐 |
+| `cancelled` | 已取消 | 取消并退款 |
+
+## 📝 提交规范
+
+使用 [Conventional Commits](https://www.conventionalcommits.org/) 规范：
 
 ```
 <type>(<scope>): <subject>
 
-feat(orders): 新增订单备注字段
-fix(payment): 修复回调签名校验失败
-docs(readme): 补充云函数部署说明
-refactor(cart): 抽取购物车持久化逻辑
+<body>
 ```
 
-`type` 建议：`feat / fix / docs / style / refactor / perf / test / chore`。
+### Type 列表
 
-## 提交流程
+| Type | 说明 |
+|---|---|
+| `feat` | 新功能 |
+| `fix` | Bug 修复 |
+| `refactor` | 重构（不改变行为） |
+| `perf` | 性能优化 |
+| `docs` | 文档变更 |
+| `style` | 代码格式（不影响逻辑） |
+| `test` | 测试相关 |
+| `chore` | 构建/工具/依赖变更 |
 
-1. Fork 仓库并新建分支：`git checkout -b feat/your-feature`。
-2. 本地开发并自测（小程序端在开发者工具中预览，管理后台 `npm run build` 通过）。
-3. 提交前确认：
-   - 没有引入新的依赖泄露（`node_modules`、`admin/dist` 不可提交）。
-   - 没有硬编码的云环境 ID 或密钥。
-   - 涉及数据库结构变更时，已在 Issue / PR 中说明集合字段。
-4. 提交 PR 至 `main` 分支，描述清晰动机、变更范围与测试方式。
-5. 等待 Review，必要时补充修改。
+### Scope 建议
 
-## 报告问题
+- `miniprogram` — 小程序端
+- `admin` — 管理后台
+- `orders` — 订单相关云函数
+- `payment` — 支付/退款云函数
+- `coupons` — 优惠券云函数
+- `auth` — 鉴权与登录
+- `docs` — 文档
 
-- 功能缺陷或建议请提 [Issue](https://github.com/WorthChecking/WeChat-Miniprogram/issues)，附复现步骤、微信开发者工具版本与基础库版本。
-- 涉及支付、鉴权、用户数据的敏感问题，请按 [SECURITY.md](SECURITY.md) 私下报告，**不要开公开 Issue**。
+### 示例
+
+```
+feat(coupons): 优惠券支持满减类型
+
+fix(payment): 修复回调签名校验失败
+
+refactor(admin): 抽取订单状态流转逻辑
+```
+
+## 🔄 PR 流程
+
+1. **Fork** 本仓库并创建特性分支：`git checkout -b feat/your-feature`
+2. **开发**：遵循上述代码规范与红线，确保本地自测通过
+3. **提交**：按提交规范编写 commit message
+4. **PR**：向 `main` 分支发起 Pull Request，填写 PR 模板
+5. **Review**：等待代码审查，根据反馈调整
+6. **Merge**：通过审查后合并
+
+### PR 检查清单
+
+- [ ] 不违反三条红线（支付/鉴权/数据）
+- [ ] 未硬编码云环境 ID、AppSecret 或任何密钥
+- [ ] `node_modules` / `admin/dist` / `project.private.config.json` / `database_export-*.json` 未被提交
+- [ ] 涉及支付的改动已服务端校验金额，不信任前端
+- [ ] 涉及管理端的改动已在云函数内校验管理员身份
+- [ ] commit message 符合 Conventional Commits 规范
+- [ ] 小程序端未使用箭头函数事件处理、可选链、空值合并
+
+## 🐛 报告问题
+
+- Bug 请使用 [Bug Report 模板](https://github.com/WorthChecking/WeChat-Miniprogram/issues/new?template=bug_report.yml)
+- 新功能建议请使用 [Feature Request 模板](https://github.com/WorthChecking/WeChat-Miniprogram/issues/new?template=feature_request.yml)
+- 安全漏洞请**不要**在公开 Issue 中讨论，按 [SECURITY.md](SECURITY.md) 私下报告
+
+## 📧 联系方式
+
+- 维护者：[@WorthChecking](https://github.com/WorthChecking)
+- Issue：[https://github.com/WorthChecking/WeChat-Miniprogram/issues](https://github.com/WorthChecking/WeChat-Miniprogram/issues)
+
+---
+
+感谢你的贡献！🍜

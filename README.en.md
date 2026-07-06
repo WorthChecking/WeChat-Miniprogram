@@ -1,135 +1,131 @@
-[简体中文](README.md) | [**English**](README.en.md)
+<div align="center">
 
-# William's Kitchen — WeChat Mini-Program Ordering System
+# William's Kitchen
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Vue 3](https://img.shields.io/badge/Vue-3.4-42b883.svg)](https://vuejs.org/)
-[![Vite 5](https://img.shields.io/badge/Vite-5-646cff.svg)](https://vitejs.dev/)
-[![WeChat Miniprogram](https://img.shields.io/badge/WeChat-Miniprogram-07c160.svg)](https://developers.weixin.qq.com/miniprogram/)
-[![CloudBase](https://img.shields.io/badge/CloudBase-ff9900.svg)](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/)
+### WeChat Mini-Program Ordering System
 
-> A full-stack ordering solution built on WeChat Cloud Development, comprising a mini-program client (C-side — customer ordering) and an admin dashboard (B-side — merchant operations). The backend is 10 cloud functions covering the core business: orders, payments, and refunds. Zero server ops — cloud-native architecture.
+A full-stack ordering solution built on WeChat Cloud Development, comprising a mini-program client (C-side — customer ordering) and an admin dashboard (B-side — merchant operations). The backend is 10 cloud functions covering orders, payments, and refunds. Zero server ops — cloud-native architecture.
 
-**Status: v1.0.0 — production-ready.** The current release covers the complete ordering loop (place order → pay → serve → coupon redemption). See [CHANGELOG.md](CHANGELOG.md).
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-WeChat%20Miniprogram-07c160.svg)](https://developers.weixin.qq.com/miniprogram/)
+[![Frontend](https://img.shields.io/badge/Frontend-Vue%203%20%2B%20Vite%205-42b883.svg)](https://vuejs.org/)
+[![Backend](https://img.shields.io/badge/Backend-Cloud%20Functions-ff9900.svg)](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Made with ❤️](https://img.shields.io/badge/Made%20with-%E2%9D%A4-red.svg)]()
+
+</div>
 
 ---
 
-## Table of Contents
+## 📖 About
 
-- [Architecture](#architecture)
-- [Tech Stack](#tech-stack)
-- [Features](#features)
-- [Quick Start](#quick-start)
-- [Cloud Database Collections](#cloud-database-collections)
-- [Deployment Security Checklist](#deployment-security-checklist)
-- [Roadmap](#roadmap)
-- [Contributing](#contributing)
-- [Security Policy](#security-policy)
-- [License](#license)
+William's Kitchen is a WeChat ordering system for small-to-mid restaurants, covering the full loop: place order → pay → serve → coupon redemption. Customers scan to order and pay via WeChat Pay; merchants handle orders, products, and coupons via a Vue admin dashboard. The whole stack runs on WeChat Cloud Development — no self-hosted servers.
 
-## Architecture
+### Core Capabilities
+
+- 🍜 **Dual-mode ordering**: dine-in scan binds table number / takeout self-pickup toggle
+- 🛒 **Shopping cart**: full CRUD, spec selection, local persistence (StorageSync)
+- 💰 **WeChat Pay**: cloudPay unified order + payment callback + refund
+- 🎫 **Coupons**: coupon center, selection at checkout, auto redemption, product association
+- 📊 **Admin dashboard**: data dashboard, order state machine, product CRUD, batch table code generation
+- ☁️ **Cloud-native**: cloud functions + cloud database + cloud storage, zero server ops
+
+## 🎬 Feature Overview
+
+> 📌 Customer-side tabs and admin dashboard pages:
+>
+> | Side | Page | Function |
+> |---|---|---|
+> | Customer | Home | store info, featured products, business status |
+> | Customer | Order | category filter, product search, spec selection, add to cart |
+> | Customer | Orders | order list, status tracking, order detail |
+> | Customer | Profile | personal center, coupons, history |
+> | Customer | Payment | WeChat Pay invocation, payment result callback |
+> | Admin | Dashboard | real-time order stats, sales data |
+> | Admin | Orders | accept / cooking / done state machine, refunds |
+> | Admin | Products | categories, CRUD, on/off shelf, featured |
+> | Admin | Coupons | create / edit / delete, product association |
+> | Admin | Table codes | batch QR code generation |
+
+## 🛠️ Tech Stack
+
+| Layer | Technology | Notes |
+|---|---|---|
+| Mini-program | WeChat native (WXML/WXSS/JS) | 9 pages, tabBar navigation |
+| Admin dashboard | Vue 3 + Vue Router 4 | SPA, route-guard auth |
+| Build tool | Vite 5 | admin build |
+| Cloud functions | Node.js + wx-server-sdk | 10 functions covering core business |
+| Cloud database | WeChat CloudBase DB | 8 collections, permission rules |
+| Cloud pay | cloudPay.cloudPay.unifiedOrder | JSAPI, callback-driven |
+| Other | qrcode | table code QR generation |
+
+## 📦 Project Structure
 
 ```
-├── miniprogram/          # WeChat mini-program (customer side)
-│   ├── pages/            # page directories
-│   │   ├── index/        # home
-│   │   ├── menu/         # ordering menu
-│   │   ├── cart/         # shopping cart
-│   │   ├── orders/       # order list
-│   │   ├── orderDetail/  # order detail
-│   │   ├── payment/      # payment
-│   │   ├── coupons/      # coupon list
-│   │   ├── couponSelect/ # coupon selection
-│   │   └── mine/         # profile
-│   ├── images/           # icon assets
-│   ├── utils/            # utilities
-│   ├── app.js            # entry (cloud init + global state)
-│   ├── app.json          # global config
-│   └── app.wxss          # global styles
+WeChat-Miniprogram/
+├── miniprogram/              # mini-program (customer side)
+│   ├── pages/                # 9 pages (home/menu/cart/orders/detail/payment/coupons/select/profile)
+│   ├── images/               # icon assets
+│   ├── utils/                # utilities
+│   ├── app.js                # entry (cloud init + global state)
+│   ├── app.json              # global config (routes, tabBar, window)
+│   └── app.wxss              # global styles
 │
-├── admin/                # admin dashboard (merchant side)
+├── admin/                    # admin dashboard (merchant side)
 │   ├── src/
-│   │   ├── views/        # page components
-│   │   │   ├── Login.vue       # login
-│   │   │   ├── Register.vue    # register
-│   │   │   ├── Confirm.vue     # login confirm
-│   │   │   ├── Dashboard.vue   # data dashboard
-│   │   │   ├── Orders.vue      # order management
-│   │   │   ├── Goods.vue       # product management
-│   │   │   ├── Coupons.vue     # coupon management
-│   │   │   ├── TableCodes.vue  # table code management
-│   │   │   └── Settings.vue    # store settings
-│   │   ├── layout/       # layout components
-│   │   ├── api/          # cloud dev API wrapper
-│   │   └── router/       # routing + auth guards
-│   └── vite.config.js    # Vite build config
+│   │   ├── views/            # 9 views (login/register/confirm/dashboard/orders/goods/coupons/table-codes/settings)
+│   │   ├── layout/           # layout components
+│   │   ├── api/              # cloud API wrapper (cloud.js)
+│   │   ├── router/           # routing + auth guards
+│   │   └── styles/           # global styles
+│   └── vite.config.js        # Vite build config
 │
-├── cloudfunctions/       # cloud functions
-│   ├── createOrder/      # create order
-│   ├── createPayment/    # create payment
-│   ├── payCallback/      # payment callback
-│   ├── cancelAndRefund/  # cancel & refund
-│   ├── updateOrderStatus/# update order status
-│   ├── getAdminOrders/   # admin order query
-│   ├── couponManager/    # coupon management
-│   ├── generateTableCode/# table code generation
-│   ├── loginAdmin/       # admin login
-│   └── resetDailySales/  # daily sales reset
+├── cloudfunctions/           # 10 cloud functions
+│   ├── createOrder/          # create order (server-side amount)
+│   ├── createPayment/        # create WeChat Pay
+│   ├── payCallback/          # payment callback (state transition)
+│   ├── cancelAndRefund/      # cancel & refund
+│   ├── updateOrderStatus/    # order status update
+│   ├── getAdminOrders/       # admin order query (auth)
+│   ├── couponManager/        # coupon CRUD & redemption
+│   ├── generateTableCode/    # batch table code generation
+│   ├── loginAdmin/           # admin login & store config
+│   └── resetDailySales/      # daily sales reset
 │
-└── project.config.json   # mini-program project config
+├── docs/                     # technical docs
+│   └── architecture.md       # architecture & database design
+├── .github/                  # GitHub community files (Issue/PR templates, CI)
+├── CONTRIBUTING.md           # contribution guide
+├── SECURITY.md               # security policy
+├── CHANGELOG.md              # changelog
+├── LICENSE                   # MIT License
+├── README.md                 # project readme (Chinese)
+└── README.en.md              # project readme (English)
 ```
 
-## Tech Stack
-
-| Module | Technology |
-|--------|------------|
-| Mini-program | WeChat native (WXML/WXSS/JS) |
-| Admin dashboard | Vue 3 + Vue Router 4 |
-| Build tool | Vite 5 |
-| Cloud service | WeChat Cloud Development (functions + database + storage) |
-| Backend SDK | wx-server-sdk / @cloudbase/js-sdk |
-| Other | qrcode (table code generation) |
-
-## Features
-
-### Mini-program (customer)
-
-- **Scan-to-order**: dine-in scan binds table number / takeout mode toggle
-- **Menu browsing**: category filter, product search, spec selection
-- **Shopping cart**: full CRUD, local persistence (StorageSync)
-- **WeChat Pay**: order payment, callback handling
-- **Order management**: list, detail, status tracking
-- **Coupons**: coupon center, selection at checkout, auto redemption
-
-### Admin dashboard (merchant)
-
-- **Data dashboard**: real-time order stats, sales data
-- **Order management**: accept / cooking / done state machine, refunds
-- **Product management**: categories, CRUD, on/off shelf, featured
-- **Coupon management**: create / edit / delete, product association
-- **Table code management**: batch QR code generation
-- **Store settings**: store info configuration
-
-## Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- [WeChat DevTools](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html) latest stable
-- Node.js 16+
-- A WeChat mini-program account with Cloud Development enabled
+| Dependency | Version | Notes |
+|---|---|---|
+| WeChat DevTools | latest stable | mini-program dev & preview |
+| Node.js | 16+ | admin build |
+| WeChat CloudBase | enabled | mini-program account with Cloud Dev enabled |
 
-### Mini-program
-
-1. Clone and import into WeChat DevTools:
+### 1️⃣ Clone
 
 ```bash
 git clone https://github.com/WorthChecking/WeChat-Miniprogram.git
+cd WeChat-Miniprogram
 ```
 
-2. In WeChat DevTools, choose "Import Project", select the repo root.
-3. Enter your AppID; verify `appid` in `project.config.json`.
-4. Enable Cloud Development and note the environment ID.
-5. Replace the env ID in `miniprogram/app.js`:
+### 2️⃣ Mini-program
+
+1. In WeChat DevTools, choose "Import Project", select the repo root.
+2. Enter your AppID (from the [WeChat MP platform](https://mp.weixin.qq.com/)).
+3. Enable Cloud Development and note your cloud env ID.
+4. Fill in the env ID in [`miniprogram/app.js`](miniprogram/app.js):
 
 ```javascript
 this.globalData = {
@@ -138,13 +134,11 @@ this.globalData = {
 };
 ```
 
-6. Right-click the `cloudfunctions` directory → "Upload and Deploy: Install Dependencies in the Cloud".
+5. Right-click the `cloudfunctions` directory → "Upload and Deploy: Install Dependencies in the Cloud".
 
-### Admin dashboard
+### 3️⃣ Admin Dashboard
 
 #### Local development
-
-1. Install dependencies and start the dev server:
 
 ```bash
 cd admin
@@ -152,8 +146,7 @@ npm install
 npm run dev
 ```
 
-2. Open `http://localhost:3000` in your browser for local debugging.
-3. Replace `ENV_ID` in `admin/src/api/cloud.js` with your cloud env ID:
+Open `http://localhost:3000` for local debugging, and fill in your cloud env ID in [`admin/src/api/cloud.js`](admin/src/api/cloud.js):
 
 ```javascript
 const ENV_ID = 'YOUR_ENV_ID'
@@ -161,22 +154,18 @@ const ENV_ID = 'YOUR_ENV_ID'
 
 #### Production deployment
 
-1. Build for production:
-
 ```bash
 npm run build
 ```
 
-2. Deploy `admin/dist/` to your own server or static hosting (WeChat CloudBase static hosting, Vercel, Netlify, Nginx, etc.).
-3. Access the admin dashboard via your own registered domain; HTTPS is required in production.
-4. Ensure the cloud env ID, database permission rules, and cloud function auth match the [deployment security checklist](#deployment-security-checklist).
+Deploy `admin/dist/` to your own server or static hosting (WeChat CloudBase static hosting, Vercel, Netlify, Nginx, etc.), accessible via your registered domain with HTTPS. Ensure the cloud env ID, database permission rules, and cloud function auth match the [security checklist](#-security-red-lines).
 
-### Cloud Database Collections
+### 4️⃣ Cloud Database Collections
 
-Create these collections in the Cloud Development console (permission rules in the [security checklist](#deployment-security-checklist)):
+Create these collections in the CloudBase console (permission rules in [Security Red Lines](#-security-red-lines)):
 
 | Collection | Description |
-|------------|-------------|
+|---|---|
 | `goods` | products |
 | `categories` | categories |
 | `orders` | orders |
@@ -186,22 +175,29 @@ Create these collections in the Cloud Development console (permission rules in t
 | `settings` | store config |
 | `admins` | admin accounts |
 
-## Deployment Security Checklist
+## 🛡️ Security Red Lines
 
-Before deploying to production, you **must** complete the following — otherwise privilege-escalation and payment risks exist:
+This project involves WeChat Pay and user orders. Before deployment, you **must** complete the following — otherwise privilege-escalation and payment risks exist (full details in [SECURITY.md](SECURITY.md)):
 
-1. **Database permission rules**:
-   - `admins`, `settings`: creator-only read/write; block direct frontend reads
-   - `orders`: `openid == auth.openid` (users read only their own orders)
-   - `goods` / `categories` / `coupons` / `couponGoods` / `tableCodes`: world-readable, admin-write-only
-2. **Cloud function auth**: `getAdminOrders` / `couponManager` / `generateTableCode` / `loginAdmin` / `resetDailySales` must verify inside the function that the caller is a valid admin in the `admins` collection — **never rely on hidden UI entries**
-3. **Payment integrity**: `createPayment` amounts must be computed server-side from the `goods` collection — **never trust client-supplied amounts**; `payCallback` must verify WeChat signatures and be idempotent
-4. **AppSecret**: lives only in cloud function env vars or the mini-program backend — **never in frontend code or git**
-5. **Admin passwords**: stored salted-hashed in `admins` — never plaintext
+| Red line | Content |
+|---|---|
+| **DB permissions** | `admins`/`settings`: creator-only; `orders`: `openid == auth.openid`; others: world-readable, admin-write-only |
+| **Payment integrity** | `createPayment` amounts must be computed server-side from the `goods` collection — **never trust client amounts**; `payCallback` must verify WeChat signatures and be idempotent |
+| **Function auth** | `getAdminOrders`/`couponManager`/`generateTableCode`/`loginAdmin`/`resetDailySales` must verify the caller is a valid admin inside the function — **never rely on hidden UI** |
+| **Credential management** | AppSecret lives only in cloud function env vars or the mini-program backend — **never in frontend code or git**; cloud env ID is replaced with `YOUR_ENV_ID` placeholder |
+| **Password storage** | passwords in `admins` must be salted-hashed — never plaintext |
 
-Full details in [SECURITY.md](SECURITY.md).
+## 📚 Documentation
 
-## Next Steps
+| Doc | Description |
+|---|---|
+| [Architecture & Database Design](docs/architecture.md) | architecture diagram, collection schemas, order state machine, payment flow |
+| [Security Policy](SECURITY.md) | vulnerability reporting + deployment checklist |
+| [Contributing Guide](CONTRIBUTING.md) | dev environment, code standards, commit conventions, PR flow |
+| [Changelog](CHANGELOG.md) | version history (Keep a Changelog format) |
+| [中文 README](README.md) | Chinese project readme |
+
+## 📌 Next Steps
 
 After deployment, proceed with:
 
@@ -211,27 +207,40 @@ After deployment, proceed with:
 4. **Upload cloud functions**: In WeChat DevTools, right-click the `cloudfunctions` directory → "Upload and Deploy: Install Dependencies in the Cloud".
 5. **Verify auth**: Audit database permission rules and cloud function auth per [SECURITY.md](SECURITY.md) to avoid privilege escalation and payment risks.
 
-## Roadmap
+## 🗺️ Roadmap
 
+- [x] Dine-in scan / takeout self-pickup dual-mode ordering
+- [x] Shopping cart with local persistence
+- [x] Full WeChat Pay chain (order → pay → callback → refund)
+- [x] Coupon claim / select / redeem
+- [x] Admin order state machine & product management
+- [x] Batch table code generation
 - [ ] Dashboard: time-of-day sales curve + best-seller list
-- [ ] Coupons: support fixed-discount / percentage / exchange types
+- [ ] Coupons: fixed-discount / percentage / exchange types
 - [ ] Table code: scan preview + batch print templates
 - [ ] Multi-store / multi-branch support
 - [ ] Order receipt printing
 
-## Contributing
+## 🤝 Contributing
 
-Issues and PRs welcome. Before submitting, read [CONTRIBUTING.md](CONTRIBUTING.md) and confirm:
+Contributions, issues, and suggestions welcome! Please read the [Contributing Guide](CONTRIBUTING.md) first.
 
-- No hardcoded env IDs or secrets
-- `node_modules` / `admin/dist` / `project.private.config.json` / `database_export-*.json` are not committed
-- Database schema changes are documented in the PR
-- Conventional Commits format is followed
-
-## Security Policy
+- 🐛 Report a bug: [open an Issue](https://github.com/WorthChecking/WeChat-Miniprogram/issues/new?template=bug_report.yml)
+- 💡 Suggest a feature: [open an Issue](https://github.com/WorthChecking/WeChat-Miniprogram/issues/new?template=feature_request.yml)
+- 🔧 Contribute code: Fork → feature branch → Pull Request
 
 For security vulnerabilities, **do not** open a public issue — report privately per [SECURITY.md](SECURITY.md).
 
-## License
+## 📄 License
 
-[MIT](LICENSE) © 2026 WorthChecking
+Released under the [MIT License](LICENSE), © 2026 WorthChecking.
+
+## ⭐ Star History
+
+If this project helps you, a Star is appreciated!
+
+<div align="center">
+
+**[⬆ Back to top](#williams-kitchen)**
+
+</div>

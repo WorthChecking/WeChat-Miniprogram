@@ -1,32 +1,25 @@
-name: 功能建议
-description: 提出新功能或对现有功能的改进建议。
+name: 💡 功能建议
+description: 提出新功能或对现有功能的改进建议
 labels: [enhancement]
 body:
   - type: textarea
     id: problem
     attributes:
-      label: 要解决的问题
+      label: 🎯 要解决的问题
       description: 这个功能要解决什么场景下的什么痛点？
     validations:
       required: true
   - type: textarea
     id: solution
     attributes:
-      label: 期望的方案
+      label: 💡 期望的方案
       description: 你希望怎么实现？小程序端 / 管理后台 / 云函数？交互流程如何？
     validations:
       required: true
-  - type: textarea
-    id: alternatives
-    attributes:
-      label: 考虑过的替代方案
-      description: 有没有其他实现路径？为什么偏好本方案？
-    validations:
-      required: false
   - type: dropdown
     id: scope
     attributes:
-      label: 影响范围
+      label: 📌 影响范围
       options:
         - 小程序端（miniprogram）
         - 管理后台（admin）
@@ -34,10 +27,26 @@ body:
         - 全链路
     validations:
       required: true
+  - type: checkboxes
+    id: redline
+    attributes:
+      label: ✅ 是否符合项目红线
+      description: 详见 [CONTRIBUTING.md](https://github.com/WorthChecking/WeChat-Miniprogram/blob/main/CONTRIBUTING.md)
+      options:
+        - label: 不违反支付红线（金额服务端计算，不信任前端）
+        - label: 不违反鉴权红线（管理端函数内校验管理员身份）
+        - label: 不违反数据红线（密码加盐哈希，不泄露凭据）
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 🔍 考虑过的替代方案
+      description: 有没有其他实现路径？为什么偏好本方案？
+    validations:
+      required: false
   - type: textarea
     id: extra
     attributes:
-      label: 补充信息
+      label: ➕ 补充信息
       description: 参考资料、竞品截图、数据指标等。
     validations:
       required: false
